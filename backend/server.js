@@ -1,7 +1,22 @@
 import { createServer } from "node:http";
+import { existsSync, readFileSync } from "node:fs";
 import pg from "pg";
 
 const { Pool } = pg;
+const envPath = new URL("./.env", import.meta.url);
+
+if (existsSync(envPath)) {
+  const lines = readFileSync(envPath, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+    const [key, ...valueParts] = trimmed.split("=");
+    if (!process.env[key]) {
+      process.env[key] = valueParts.join("=").replace(/^["']|["']$/g, "");
+    }
+  }
+}
+
 const PORT = Number(process.env.PORT || 8000);
 const DATABASE_URL = process.env.DATABASE_URL;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "*";
