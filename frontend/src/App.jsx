@@ -85,6 +85,17 @@ function Rating({ rating, reviews }) {
   );
 }
 
+function isImageSource(value) {
+  return /^https?:\/\//i.test(value || "") || /^data:image\//i.test(value || "");
+}
+
+function ProductMedia({ image, name, className = "" }) {
+  if (isImageSource(image)) {
+    return <img className={`productMedia ${className}`} src={image} alt={name || "Product"} loading="lazy" />;
+  }
+  return <span className={`productEmoji ${className}`}>{image || "📦"}</span>;
+}
+
 function AnimatedBackground({ currentPage }) {
   const particles = useMemo(
     () =>
@@ -626,7 +637,7 @@ function ProductCard({ product, onView, onAdd }) {
     <article className="productCard">
       {ripple && <span className="cartRipple" style={{ "--x": ripple.x, "--y": ripple.y }} />}
       <button className="productImage" onClick={() => onView(product)}>
-        {product.image}
+        <ProductMedia image={product.image} name={product.name} />
       </button>
       <div className="productTop">
         <small>{product.category}</small>
@@ -876,7 +887,9 @@ function ProductDetail({ product, onBack, onAdd }) {
           Back to shop
         </button>
         <div className="detailGrid">
-          <div className="detailImage">{product.image}</div>
+          <div className="detailImage">
+            <ProductMedia image={product.image} name={product.name} />
+          </div>
           <div>
             <span className="accentText">{product.category}</span>
             <h1>{product.name}</h1>
@@ -944,7 +957,9 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo }) {
           {rows.length === 0 && <div className="empty">Your cart is empty.</div>}
           {rows.map(({ product, quantity }) => (
             <article className="cartItem" key={product.id}>
-              <div className="cartImage">{product.image}</div>
+              <div className="cartImage">
+                <ProductMedia image={product.image} name={product.name} />
+              </div>
               <div>
                 <h3>{product.name}</h3>
                 <p>{money(product.price)}</p>
@@ -1010,7 +1025,7 @@ function Orders({ user, orders, goTo }) {
               {order.items.map((item) => (
                 <div className="orderLine" key={`${order.orderId}-${item.productId}`}>
                   <span>
-                    {item.image} {item.name} x {item.quantity}
+                    <ProductMedia image={item.image} name={item.name} className="orderMedia" /> {item.name} x {item.quantity}
                   </span>
                   <strong>{money(item.price * item.quantity)}</strong>
                 </div>
@@ -1065,6 +1080,22 @@ function Login({ onLogin, onRegister }) {
 function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
   const [draft, setDraft] = useState(blankProduct);
   const [editingId, setEditingId] = useState(null);
+
+  const uploadImage = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      notify("error", "Please choose an image file.");
+      return;
+    }
+    if (file.size > 900 * 1024) {
+      notify("error", "Please choose an image below 900 KB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setDraft((current) => ({ ...current, image: reader.result }));
+    reader.onerror = () => notify("error", "Could not read image file.");
+    reader.readAsDataURL(file);
+  };
 
   const saveProduct = async () => {
     if (!draft.name || !draft.description || Number(draft.price) <= 0 || Number(draft.stock) < 0) {
@@ -1138,7 +1169,16 @@ function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
           <input value={draft.price} type="number" onChange={(event) => setDraft({ ...draft, price: event.target.value })} placeholder="Price" />
           <input value={draft.originalPrice} type="number" onChange={(event) => setDraft({ ...draft, originalPrice: event.target.value })} placeholder="Original price" />
           <input value={draft.stock} type="number" onChange={(event) => setDraft({ ...draft, stock: event.target.value })} placeholder="Stock" />
-          <input value={draft.image} onChange={(event) => setDraft({ ...draft, image: event.target.value })} placeholder="Emoji/image" />
+          <div className="imageInputGroup">
+            <input value={draft.image} onChange={(event) => setDraft({ ...draft, image: event.target.value })} placeholder="Image URL or emoji" />
+            <label className="uploadButton">
+              Upload Image
+              <input type="file" accept="image/*" onChange={(event) => uploadImage(event.target.files?.[0])} />
+            </label>
+          </div>
+          <div className="imagePreviewBox">
+            <ProductMedia image={draft.image} name={draft.name || "Product preview"} />
+          </div>
           <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} placeholder="Description" />
         </div>
         <button className="primary" onClick={saveProduct}>
@@ -1188,7 +1228,12 @@ function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
           <tbody>
             {products.map((product) => (
               <tr key={product.id}>
-                <td>{product.image} {product.name}</td>
+                <td>
+                  <span className="adminProductCell">
+                    <ProductMedia image={product.image} name={product.name} className="adminProductThumb" />
+                    {product.name}
+                  </span>
+                </td>
                 <td>{product.category}</td>
                 <td>{money(product.price)}</td>
                 <td>{product.stock}</td>

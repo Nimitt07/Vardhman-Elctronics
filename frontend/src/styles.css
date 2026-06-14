@@ -540,6 +540,26 @@ textarea:focus {
 .productImage {
   min-height: 160px;
   font-size: 62px;
+  overflow: hidden;
+}
+
+.productMedia {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.productEmoji {
+  display: inline-grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: inherit;
+}
+
+.productImage .productMedia {
+  max-height: 160px;
 }
 
 .productTop {
@@ -663,6 +683,12 @@ del {
   min-height: 360px;
   background: #f1f5f9;
   font-size: 100px;
+  overflow: hidden;
+}
+
+.detailImage .productMedia {
+  max-height: 360px;
+  padding: 22px;
 }
 
 .inlineWrap {
@@ -742,6 +768,26 @@ del {
   height: 76px;
   background: #f1f5f9;
   font-size: 38px;
+  overflow: hidden;
+}
+
+.cartImage .productMedia {
+  padding: 6px;
+}
+
+.orderMedia {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+img.orderMedia {
+  display: inline-block;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #f1f5f9;
 }
 
 .cartItem h3 {
@@ -953,6 +999,64 @@ del {
 
 .productForm textarea {
   grid-column: 1 / -1;
+}
+
+.imageInputGroup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  border-radius: 8px;
+  background: #0d1b2a;
+  color: #fff;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.uploadButton input {
+  display: none;
+}
+
+.imagePreviewBox {
+  display: grid;
+  min-height: 96px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 42px;
+}
+
+.imagePreviewBox .productMedia {
+  max-height: 110px;
+  padding: 8px;
+}
+
+.adminProductCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adminProductThumb {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+}
+
+img.adminProductThumb {
+  border-radius: 8px;
+  background: #f1f5f9;
+  object-fit: cover;
 }
 
 .tablePanel {
