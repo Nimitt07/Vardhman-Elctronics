@@ -48,6 +48,146 @@ const blankProduct = {
   description: "",
 };
 
+const hindiDictionary = {
+  "Home": "होम",
+  "Products": "उत्पाद",
+  "About": "हमारे बारे में",
+  "Orders": "ऑर्डर",
+  "Admin": "एडमिन",
+  "Login": "लॉगिन",
+  "Register": "रजिस्टर",
+  "Logout": "लॉगआउट",
+  "Welcome back": "वापसी पर स्वागत है",
+  "Create account": "खाता बनाएं",
+  "Username": "यूज़रनेम",
+  "Password": "पासवर्ड",
+  "Your Trusted Electronics Partner": "आपका भरोसेमंद इलेक्ट्रॉनिक्स पार्टनर",
+  "Premium Indian Electronics Retailer": "प्रीमियम भारतीय इलेक्ट्रॉनिक्स रिटेलर",
+  "Shop Now": "अभी खरीदें",
+  "Fresh Arrivals": "नए प्रोडक्ट",
+  "Featured Products": "फीचर्ड प्रोडक्ट",
+  "Complete Catalog": "पूरा कैटलॉग",
+  "Compare smartphones, laptops, audio gear, and accessories with quick filters built for real shopping decisions.": "स्मार्टफोन, लैपटॉप, ऑडियो और एक्सेसरीज़ को तेज़ फिल्टर के साथ आसानी से तुलना करें।",
+  "matching products": "मिलते हुए उत्पाद",
+  "Category": "श्रेणी",
+  "Brand": "ब्रांड",
+  "Sort": "सॉर्ट करें",
+  "Availability": "उपलब्धता",
+  "Min Price": "न्यूनतम कीमत",
+  "Max Price": "अधिकतम कीमत",
+  "Rating": "रेटिंग",
+  "Clear Filters": "फिल्टर हटाएं",
+  "All": "सभी",
+  "Smartphones": "स्मार्टफोन",
+  "Laptops": "लैपटॉप",
+  "Audio": "ऑडियो",
+  "Accessories": "एक्सेसरीज़",
+  "Newest first": "नए पहले",
+  "Price: low to high": "कीमत: कम से ज्यादा",
+  "Price: high to low": "कीमत: ज्यादा से कम",
+  "Highest rated": "सबसे ज्यादा रेटेड",
+  "Most reviewed": "सबसे ज्यादा रिव्यू",
+  "Name A-Z": "नाम A-Z",
+  "All stock": "सभी स्टॉक",
+  "In stock only": "केवल स्टॉक में",
+  "Out of stock": "स्टॉक खत्म",
+  "All ratings": "सभी रेटिंग",
+  "4.5+ stars": "4.5+ स्टार",
+  "4.0+ stars": "4.0+ स्टार",
+  "3.5+ stars": "3.5+ स्टार",
+  "Shopping Cart": "शॉपिंग कार्ट",
+  "Your cart is empty.": "आपकी कार्ट खाली है।",
+  "Order Summary": "ऑर्डर सारांश",
+  "Subtotal": "सबटोटल",
+  "Estimated GST 18%": "अनुमानित GST 18%",
+  "Total": "कुल",
+  "Place Order": "ऑर्डर करें",
+  "Delivery Address": "डिलीवरी पता",
+  "Complete every field before placing your order.": "ऑर्डर करने से पहले हर फ़ील्ड भरें।",
+  "Required": "अनिवार्य",
+  "Full Name": "पूरा नाम",
+  "Phone Number": "फ़ोन नंबर",
+  "House / Building": "घर / बिल्डिंग",
+  "Area / Locality": "एरिया / लोकैलिटी",
+  "City": "शहर",
+  "State": "राज्य",
+  "PIN / Postal Code": "पिन / पोस्टल कोड",
+  "Country": "देश",
+  "My Orders": "मेरे ऑर्डर",
+  "All Orders": "सभी ऑर्डर",
+  "No orders yet.": "अभी कोई ऑर्डर नहीं।",
+  "Pending": "पेंडिंग",
+  "Confirmed": "कन्फर्म्ड",
+  "Shipped": "शिप्ड",
+  "Delivered": "डिलीवर्ड",
+  "Back to shop": "शॉप पर वापस",
+  "Available stock:": "उपलब्ध स्टॉक:",
+  "Add to Cart": "कार्ट में जोड़ें",
+  "Add": "जोड़ें",
+  "About Vardhman Electronics": "वर्धमान इलेक्ट्रॉनिक्स के बारे में",
+  "Premium electronics, honest service, and dependable stock.": "प्रीमियम इलेक्ट्रॉनिक्स, ईमानदार सेवा और भरोसेमंद स्टॉक।",
+  "Trusted Catalog": "भरोसेमंद कैटलॉग",
+  "Live Stock Focus": "लाइव स्टॉक फोकस",
+  "Admin Control": "एडमिन कंट्रोल",
+  "Cloud Ready": "क्लाउड रेडी",
+  "Admin Control Room": "एडमिन कंट्रोल रूम",
+  "Vardhman Dashboard": "वर्धमान डैशबोर्ड",
+  "Total Products": "कुल उत्पाद",
+  "Total Orders": "कुल ऑर्डर",
+  "Total Users": "कुल यूज़र",
+  "Revenue": "रेवेन्यू",
+  "Add New Product": "नया उत्पाद जोड़ें",
+  "Edit Product": "उत्पाद एडिट करें",
+  "Product name": "उत्पाद का नाम",
+  "Price": "कीमत",
+  "Original price": "मूल कीमत",
+  "Stock": "स्टॉक",
+  "Image URL or emoji": "इमेज URL या इमोजी",
+  "Upload Image": "इमेज अपलोड करें",
+  "Description": "विवरण",
+  "Add Product": "उत्पाद जोड़ें",
+  "Save Product": "उत्पाद सेव करें",
+  "Cancel": "रद्द करें",
+  "Order Management": "ऑर्डर मैनेजमेंट",
+  "Product Management": "प्रोडक्ट मैनेजमेंट",
+  "Users": "यूज़र",
+  "Order ID": "ऑर्डर ID",
+  "Customer": "ग्राहक",
+  "Date": "तारीख",
+  "Items": "आइटम",
+  "Address": "पता",
+  "Status": "स्टेटस",
+  "Actions": "एक्शन",
+  "Product": "उत्पाद",
+  "Login required": "लॉगिन आवश्यक",
+  "Login to view your cart": "कार्ट देखने के लिए लॉगिन करें",
+  "Login to view orders": "ऑर्डर देखने के लिए लॉगिन करें",
+  "Go to Login": "लॉगिन पर जाएं",
+  "Please login or create an account to continue.": "जारी रखने के लिए लॉगिन करें या खाता बनाएं।",
+  "Vardhman Electronics · Premium electronics, honest service, real SQLite database.": "वर्धमान इलेक्ट्रॉनिक्स · प्रीमियम इलेक्ट्रॉनिक्स, ईमानदार सेवा, वास्तविक डेटाबेस।",
+};
+
+const hindiPlaceholders = {
+  "Username": "यूज़रनेम",
+  "Password": "पासवर्ड",
+  "Search phones, laptops, audio...": "फोन, लैपटॉप, ऑडियो खोजें...",
+  "Search by product name...": "उत्पाद नाम से खोजें...",
+  "Product name": "उत्पाद का नाम",
+  "Price": "कीमत",
+  "Original price": "मूल कीमत",
+  "Stock": "स्टॉक",
+  "Image URL or emoji": "इमेज URL या इमोजी",
+  "Description": "विवरण",
+  "Full Name": "पूरा नाम",
+  "Phone Number": "फ़ोन नंबर",
+  "House / Building": "घर / बिल्डिंग",
+  "Area / Locality": "एरिया / लोकैलिटी",
+  "City": "शहर",
+  "State": "राज्य",
+  "PIN / Postal Code": "पिन / पोस्टल कोड",
+  "Country": "देश",
+};
+
 function money(value) {
   return `₹${Number(value || 0).toLocaleString("en-IN")}`;
 }
@@ -71,6 +211,50 @@ function api(path, options = {}, user) {
     if (!response.ok) throw new Error(data.error || "Request failed");
     return data;
   });
+}
+
+function translateVisibleText(language) {
+  const useHindi = language === "hi";
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent || parent.closest("script, style, textarea, input, select, option")) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+  textNodes.forEach((node) => {
+    const parent = node.parentElement;
+    if (!parent.dataset.enText) parent.dataset.enText = node.nodeValue;
+    const original = parent.dataset.enText;
+    const compact = original.replace(/\s+/g, " ").trim();
+    const translated = hindiDictionary[compact];
+    node.nodeValue = useHindi && translated ? original.replace(compact, translated) : original;
+  });
+
+  document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach((element) => {
+    if (!element.dataset.enPlaceholder) element.dataset.enPlaceholder = element.getAttribute("placeholder") || "";
+    const original = element.dataset.enPlaceholder;
+    element.setAttribute("placeholder", useHindi ? hindiPlaceholders[original] || original : original);
+  });
+}
+
+function LanguageToggle({ language, setLanguage }) {
+  return (
+    <button
+      className="languageToggle"
+      onClick={() => setLanguage((current) => (current === "en" ? "hi" : "en"))}
+      title="Toggle Hindi"
+    >
+      {language === "en" ? "हिंदी" : "English"}
+    </button>
+  );
 }
 
 function validateAddress(address) {
@@ -1349,6 +1533,7 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [language, setLanguage] = useState("en");
 
   const notify = (type, message) => {
     const id = Date.now() + Math.random();
@@ -1379,6 +1564,10 @@ export default function App() {
     loadOrders();
     loadAdmin();
   }, [user]);
+
+  useEffect(() => {
+    translateVisibleText(language);
+  });
 
   const goTo = (nextPage) => {
     if (!user && nextPage !== "login") {
@@ -1472,6 +1661,7 @@ export default function App() {
   return (
     <div className="app">
       <AnimatedBackground currentPage={page} />
+      <LanguageToggle language={language} setLanguage={setLanguage} />
       <Toasts toasts={toasts} />
       {user && <Navbar user={user} cartCount={cartCount} page={page} goTo={goTo} logout={logout} />}
       {user && page === "home" && <Home products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} goTo={goTo} />}

@@ -1266,6 +1266,25 @@ td {
 .toast.error { background: #fef2f2; color: #b91c1c; }
 .toast.info { background: #eff6ff; color: #1d4ed8; }
 
+.languageToggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 45;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 999px;
+  background: rgba(13, 27, 42, 0.9);
+  color: #ffffff;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35), 0 0 22px rgba(37, 99, 235, 0.22);
+}
+
+.languageToggle:hover {
+  background: rgba(37, 99, 235, 0.92);
+}
+
 footer {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 28px 16px;
