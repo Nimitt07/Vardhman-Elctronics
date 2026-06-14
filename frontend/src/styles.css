@@ -817,6 +817,44 @@ img.orderMedia {
   font-weight: 700;
 }
 
+.addressPanel {
+  margin-top: 24px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  padding-top: 22px;
+}
+
+.addressPanel .panelHead {
+  align-items: flex-start;
+}
+
+.addressPanel .panelHead p {
+  margin: 6px 0 0;
+  color: var(--space-muted);
+  font-weight: 600;
+}
+
+.addressGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.addressGrid label {
+  display: grid;
+  gap: 7px;
+}
+
+.addressGrid label.wide {
+  grid-column: 1 / -1;
+}
+
+.addressGrid span {
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .stepper.compact button {
   padding: 7px 11px;
 }
@@ -955,6 +993,26 @@ img.orderMedia {
 .orderLine {
   margin-top: 12px;
   color: var(--space-muted);
+  font-weight: 700;
+}
+
+.addressSummary {
+  margin-top: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px;
+}
+
+.addressSummary strong {
+  color: #bfdbfe;
+  font-size: 13px;
+}
+
+.addressSummary p {
+  margin: 5px 0 0;
+  color: var(--space-muted);
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -1125,6 +1183,11 @@ td {
   font-weight: 700;
 }
 
+.adminAddressCell {
+  color: var(--space-muted);
+  min-width: 180px;
+}
+
 .selectWrap {
   position: relative;
   display: block;
@@ -1287,6 +1350,10 @@ footer {
 
   .cartItem {
     grid-template-columns: 70px 1fr;
+  }
+
+  .addressGrid {
+    grid-template-columns: 1fr;
   }
 
   .itemTotal {

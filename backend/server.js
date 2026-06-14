@@ -70,6 +70,7 @@ function orderRow(row, items = []) {
     total: row.total,
     status: row.status,
     date: row.created_at_label,
+    deliveryAddress: row.delivery_address || null,
     items,
   };
 }
@@ -113,7 +114,8 @@ async function initDb() {
       username TEXT NOT NULL,
       total INTEGER NOT NULL,
       status TEXT NOT NULL DEFAULT 'Pending',
-      created_at_label TEXT NOT NULL
+      created_at_label TEXT NOT NULL,
+      delivery_address JSONB
     );
 
     CREATE TABLE IF NOT EXISTS order_items (
@@ -126,6 +128,8 @@ async function initDb() {
       image TEXT NOT NULL
     );
   `);
+
+  await pool.query("ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_address JSONB");
 
   const usersCount = await pool.query("SELECT COUNT(*)::int AS count FROM users");
   if (usersCount.rows[0].count === 0) {
@@ -217,6 +221,29 @@ function cleanProduct(body) {
   };
 }
 
+function cleanAddress(body) {
+  const address = body?.deliveryAddress || {};
+  return {
+    fullName: String(address.fullName || "").trim(),
+    phone: String(address.phone || "").trim(),
+    house: String(address.house || "").trim(),
+    area: String(address.area || "").trim(),
+    city: String(address.city || "").trim(),
+    state: String(address.state || "").trim(),
+    pincode: String(address.pincode || "").trim(),
+    country: String(address.country || "").trim(),
+  };
+}
+
+function validateAddress(address) {
+  const required = ["fullName", "phone", "house", "area", "city", "state", "pincode", "country"];
+  const missing = required.filter((key) => !address[key]);
+  if (missing.length) return "Complete delivery address is required";
+  if (!/^[0-9+\-\s]{8,15}$/.test(address.phone)) return "Enter a valid phone number";
+  if (!/^[0-9]{5,8}$/.test(address.pincode)) return "Enter a valid PIN/postal code";
+  return "";
+}
+
 function routeSegments(pathname) {
   return pathname.split("/").filter(Boolean);
 }
@@ -298,8 +325,14 @@ async function handler(req, res) {
       if (!user) return;
       const body = await readBody(req);
       const items = Array.isArray(body.items) ? body.items : [];
+      const deliveryAddress = cleanAddress(body);
+      const addressError = validateAddress(deliveryAddress);
       if (items.length === 0) {
         json(res, 400, { error: "Cart is empty" });
+        return;
+      }
+      if (addressError) {
+        json(res, 400, { error: addressError });
         return;
       }
 
@@ -338,8 +371,8 @@ async function handler(req, res) {
         }).format(new Date());
 
         const orderResult = await client.query(
-          "INSERT INTO orders(order_id, user_id, username, total, status, created_at_label) VALUES ($1, $2, $3, $4, 'Pending', $5) RETURNING *",
-          [orderId, user.id, user.username, total, createdAtLabel]
+          "INSERT INTO orders(order_id, user_id, username, total, status, created_at_label, delivery_address) VALUES ($1, $2, $3, $4, 'Pending', $5, $6::jsonb) RETURNING *",
+          [orderId, user.id, user.username, total, createdAtLabel, JSON.stringify(deliveryAddress)]
         );
 
         for (const { product, quantity } of ordered) {

@@ -18,6 +18,26 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const categories = ["All", "Smartphones", "Laptops", "Audio", "Accessories"];
 const statuses = ["Pending", "Confirmed", "Shipped", "Delivered"];
 const knownBrands = ["Samsung", "Realme", "OnePlus", "Dell", "HP", "Lenovo", "boAt", "Sony", "JBL", "Ambrane"];
+const blankAddress = {
+  fullName: "",
+  phone: "",
+  house: "",
+  area: "",
+  city: "",
+  state: "",
+  pincode: "",
+  country: "India",
+};
+const addressFields = [
+  ["fullName", "Full Name"],
+  ["phone", "Phone Number"],
+  ["house", "House / Building"],
+  ["area", "Area / Locality"],
+  ["city", "City"],
+  ["state", "State"],
+  ["pincode", "PIN / Postal Code"],
+  ["country", "Country"],
+];
 const blankProduct = {
   name: "",
   category: "Smartphones",
@@ -51,6 +71,14 @@ function api(path, options = {}, user) {
     if (!response.ok) throw new Error(data.error || "Request failed");
     return data;
   });
+}
+
+function validateAddress(address) {
+  const missing = addressFields.filter(([key]) => !String(address[key] || "").trim());
+  if (missing.length) return `Please complete: ${missing.map(([, label]) => label).join(", ")}`;
+  if (!/^[0-9+\-\s]{8,15}$/.test(address.phone.trim())) return "Enter a valid phone number.";
+  if (!/^[0-9]{5,8}$/.test(address.pincode.trim())) return "Enter a valid PIN/postal code.";
+  return "";
 }
 
 function Toasts({ toasts }) {
@@ -931,7 +959,8 @@ function LoginPrompt({ title, goTo }) {
   );
 }
 
-function Cart({ user, cart, products, setCart, placeOrder, goTo }) {
+function Cart({ user, cart, products, setCart, placeOrder, goTo, notify }) {
+  const [deliveryAddress, setDeliveryAddress] = useState(blankAddress);
   if (!user) return <LoginPrompt title="Login to view your cart" goTo={goTo} />;
   const rows = cart.map((item) => ({ ...item, product: products.find((p) => p.id === item.productId) })).filter((item) => item.product);
   const subtotal = rows.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -943,6 +972,19 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo }) {
     setCart((current) =>
       current.map((item) => (item.productId === productId ? { ...item, quantity: Math.max(1, Math.min(quantity, product?.stock || 1)) } : item))
     );
+  };
+
+  const updateAddress = (key, value) => {
+    setDeliveryAddress((current) => ({ ...current, [key]: value }));
+  };
+
+  const submitOrder = () => {
+    const error = validateAddress(deliveryAddress);
+    if (error) {
+      notify("error", error);
+      return;
+    }
+    placeOrder(deliveryAddress);
   };
 
   return (
@@ -974,6 +1016,28 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo }) {
             </article>
           ))}
         </div>
+        <section className="addressPanel">
+          <div className="panelHead">
+            <div>
+              <h2>Delivery Address</h2>
+              <p>Complete every field before placing your order.</p>
+            </div>
+            <span>Required</span>
+          </div>
+          <div className="addressGrid">
+            {addressFields.map(([key, label]) => (
+              <label key={key} className={key === "house" || key === "area" ? "wide" : ""}>
+                <span>{label}</span>
+                <input
+                  value={deliveryAddress[key]}
+                  onChange={(event) => updateAddress(key, event.target.value)}
+                  placeholder={label}
+                  type={key === "phone" || key === "pincode" ? "tel" : "text"}
+                />
+              </label>
+            ))}
+          </div>
+        </section>
       </section>
       <aside className="panel summary">
         <h2>Order Summary</h2>
@@ -989,7 +1053,7 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo }) {
           <span>Total</span>
           <strong>{money(total)}</strong>
         </div>
-        <button className="primary full" onClick={placeOrder}>
+        <button className="primary full" onClick={submitOrder}>
           Place Order
         </button>
       </aside>
@@ -999,6 +1063,18 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo }) {
 
 function StatusChip({ status }) {
   return <span className={`status ${status.toLowerCase()}`}>{status}</span>;
+}
+
+function AddressSummary({ address }) {
+  if (!address) return null;
+  return (
+    <div className="addressSummary">
+      <strong>Delivery Address</strong>
+      <p>{address.fullName} · {address.phone}</p>
+      <p>{address.house}, {address.area}, {address.city}</p>
+      <p>{address.state} - {address.pincode}, {address.country}</p>
+    </div>
+  );
 }
 
 function Orders({ user, orders, goTo }) {
@@ -1026,6 +1102,7 @@ function Orders({ user, orders, goTo }) {
                   <strong>{money(item.price * item.quantity)}</strong>
                 </div>
               ))}
+              <AddressSummary address={order.deliveryAddress} />
               <div className="orderTotal">{money(order.total)}</div>
             </article>
           ))}
@@ -1188,7 +1265,7 @@ function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
         </div>
         <table>
           <thead>
-            <tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
+            <tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Address</th><th>Total</th><th>Status</th></tr>
           </thead>
           <tbody>
             {orders.length === 0 && <tr><td colSpan="6">No orders placed yet.</td></tr>}
@@ -1198,6 +1275,9 @@ function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
                 <td>{order.username}</td>
                 <td>{order.date}</td>
                 <td>{order.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                <td className="adminAddressCell">
+                  {order.deliveryAddress ? `${order.deliveryAddress.city}, ${order.deliveryAddress.state} - ${order.deliveryAddress.pincode}` : "Not provided"}
+                </td>
                 <td>{money(order.total)}</td>
                 <td>
                   <label className="selectWrap">
@@ -1357,13 +1437,18 @@ export default function App() {
     notify("success", `${product.name} added to cart.`);
   };
 
-  const placeOrder = async () => {
+  const placeOrder = async (deliveryAddress) => {
     if (!cart.length) {
       notify("info", "Your cart is empty.");
       return;
     }
+    const addressError = validateAddress(deliveryAddress || {});
+    if (addressError) {
+      notify("error", addressError);
+      return;
+    }
     try {
-      await api("/api/orders", { method: "POST", body: JSON.stringify({ items: cart }) }, user);
+      await api("/api/orders", { method: "POST", body: JSON.stringify({ items: cart, deliveryAddress }) }, user);
       setCart([]);
       notify("success", "Order placed successfully.");
       reloadAll();
@@ -1393,7 +1478,7 @@ export default function App() {
       {user && page === "products" && <ProductsPage products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} />}
       {user && page === "about" && <AboutPage />}
       {user && page === "detail" && <ProductDetail product={selectedProduct} onBack={() => goTo("home")} onAdd={addToCart} />}
-      {user && page === "cart" && <Cart user={user} cart={cart} products={products} setCart={setCart} placeOrder={placeOrder} goTo={goTo} />}
+      {user && page === "cart" && <Cart user={user} cart={cart} products={products} setCart={setCart} placeOrder={placeOrder} goTo={goTo} notify={notify} />}
       {user && page === "orders" && <Orders user={user} orders={orders} goTo={goTo} />}
       {page === "login" && <Login onLogin={onLogin} onRegister={onRegister} />}
       {page === "admin" && user?.role === "admin" && <Admin user={user} products={products} orders={orders} users={users} stats={stats} reloadAll={reloadAll} notify={notify} />}
