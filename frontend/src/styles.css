@@ -1258,7 +1258,7 @@ td {
 .languageToggle {
   position: fixed;
   right: 18px;
-  bottom: 18px;
+  top: 86px;
   z-index: 45;
   border: 1px solid rgba(96, 165, 250, 0.45);
   border-radius: 999px;
