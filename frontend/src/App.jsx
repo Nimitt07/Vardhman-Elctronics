@@ -736,7 +736,7 @@ function AnimatedBackground({ currentPage }) {
   );
 }
 
-function Navbar({ user, cartCount, page, goTo, logout }) {
+function Navbar({ user, cartCount, page, goTo, logout, language, setLanguage }) {
   const nav = [
     ["home", "Home"],
     ["products", "Products"],
@@ -763,6 +763,7 @@ function Navbar({ user, cartCount, page, goTo, logout }) {
         ))}
       </nav>
       <div className="navright">
+        <LanguageToggle language={language} setLanguage={setLanguage} />
         <button className="iconButton cartButton" onClick={() => goTo("cart")} aria-label="Cart">
           <ShoppingCart size={19} />
           {cartCount > 0 && <b>{cartCount}</b>}
@@ -1296,7 +1297,7 @@ function Orders({ user, orders, goTo }) {
   );
 }
 
-function Login({ onLogin, onRegister }) {
+function Login({ onLogin, onRegister, language, setLanguage }) {
   const [tab, setTab] = useState("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -1308,23 +1309,28 @@ function Login({ onLogin, onRegister }) {
 
   return (
     <main className="page centerPage">
-      <section className="panel narrow">
-        <div className="tabs">
-          {["login", "register"].map((item) => (
-            <button className={tab === item ? "active" : ""} key={item} onClick={() => setTab(item)}>
-              {item}
+      <div className="loginShell">
+        <div className="loginLanguageSlot">
+          <LanguageToggle language={language} setLanguage={setLanguage} />
+        </div>
+        <section className="panel narrow">
+          <div className="tabs">
+            {["login", "register"].map((item) => (
+              <button className={tab === item ? "active" : ""} key={item} onClick={() => setTab(item)}>
+                {item}
+              </button>
+            ))}
+          </div>
+          <h1>{tab === "login" ? "Welcome back" : "Create account"}</h1>
+          <div className="stack">
+            <input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Username" />
+            <input value={password} type="password" onChange={(event) => setPassword(event.target.value)} placeholder="Password" />
+            <button className="primary full" onClick={submit}>
+              {tab === "login" ? "Login" : "Register"}
             </button>
-          ))}
-        </div>
-        <h1>{tab === "login" ? "Welcome back" : "Create account"}</h1>
-        <div className="stack">
-          <input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Username" />
-          <input value={password} type="password" onChange={(event) => setPassword(event.target.value)} placeholder="Password" />
-          <button className="primary full" onClick={submit}>
-            {tab === "login" ? "Login" : "Register"}
-          </button>
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
@@ -1656,16 +1662,15 @@ export default function App() {
   return (
     <div className="app">
       <AnimatedBackground currentPage={page} />
-      <LanguageToggle language={language} setLanguage={setLanguage} />
       <Toasts toasts={toasts} />
-      {user && <Navbar user={user} cartCount={cartCount} page={page} goTo={goTo} logout={logout} />}
+      {user && <Navbar user={user} cartCount={cartCount} page={page} goTo={goTo} logout={logout} language={language} setLanguage={setLanguage} />}
       {user && page === "home" && <Home products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} goTo={goTo} />}
       {user && page === "products" && <ProductsPage products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} />}
       {user && page === "about" && <AboutPage />}
       {user && page === "detail" && <ProductDetail product={selectedProduct} onBack={() => goTo("home")} onAdd={addToCart} />}
       {user && page === "cart" && <Cart user={user} cart={cart} products={products} setCart={setCart} placeOrder={placeOrder} goTo={goTo} notify={notify} />}
       {user && page === "orders" && <Orders user={user} orders={orders} goTo={goTo} />}
-      {page === "login" && <Login onLogin={onLogin} onRegister={onRegister} />}
+      {page === "login" && <Login onLogin={onLogin} onRegister={onRegister} language={language} setLanguage={setLanguage} />}
       {page === "admin" && user?.role === "admin" && <Admin user={user} products={products} orders={orders} users={users} stats={stats} reloadAll={reloadAll} notify={notify} />}
       <footer>Vardhman Electronics · Premium electronics, honest service, real SQLite database.</footer>
     </div>
