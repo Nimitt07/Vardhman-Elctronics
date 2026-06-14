@@ -212,13 +212,12 @@ function api(path, options = {}, user) {
     return data;
   });
 }
-
 function translateVisibleText(language) {
   const useHindi = language === "hi";
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       const parent = node.parentElement;
-      if (!parent || parent.closest("script, style, textarea, input, select, option")) {
+      if (!parent || parent.closest("script, style, textarea, input, select, option, .languageToggle")) {
         return NodeFilter.FILTER_REJECT;
       }
       if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
@@ -251,8 +250,9 @@ function LanguageToggle({ language, setLanguage }) {
       className="languageToggle"
       onClick={() => setLanguage((current) => (current === "en" ? "hi" : "en"))}
       title="Toggle Hindi"
+      data-no-translate="true"
     >
-      {language === "en" ? "हिंदी" : "English"}
+      {language === "en" ? "\u0939\u093f\u0902\u0926\u0940" : "English"}
     </button>
   );
 }
@@ -1676,3 +1676,4 @@ export default function App() {
     </div>
   );
 }
+
