@@ -99,7 +99,7 @@ function ProductMedia({ image, name, className = "" }) {
 function AnimatedBackground({ currentPage }) {
   const particles = useMemo(
     () =>
-      Array.from({ length: 54 }, (_, index) => ({
+      Array.from({ length: 24 }, (_, index) => ({
         id: index,
         left: `${Math.round((index * 37) % 100)}%`,
         top: `${Math.round((index * 61) % 100)}%`,
@@ -117,14 +117,12 @@ function AnimatedBackground({ currentPage }) {
         { id: 0, left: "-16%", top: "-10%", delay: "0s", length: "210px", duration: "24s", angle: "29deg", startX: "-30vw", startY: "-12vh", endX: "118vw", endY: "78vh" },
         { id: 1, left: "-4%", top: "-14%", delay: "4.6s", length: "270px", duration: "24s", angle: "34deg", startX: "-34vw", startY: "-16vh", endX: "112vw", endY: "86vh" },
         { id: 2, left: "18%", top: "-12%", delay: "9.8s", length: "230px", duration: "24s", angle: "27deg", startX: "-38vw", startY: "-14vh", endX: "126vw", endY: "74vh" },
-        { id: 3, left: "-10%", top: "-18%", delay: "15.1s", length: "290px", duration: "24s", angle: "36deg", startX: "-40vw", startY: "-15vh", endX: "122vw", endY: "92vh" },
-        { id: 4, left: "38%", top: "-16%", delay: "20.5s", length: "250px", duration: "24s", angle: "31deg", startX: "-36vw", startY: "-14vh", endX: "108vw", endY: "82vh" },
       ],
     []
   );
   const stars = useMemo(
     () =>
-      Array.from({ length: 86 }, (_, index) => ({
+      Array.from({ length: 38 }, (_, index) => ({
         id: index,
         left: `${(index * 29 + 7) % 100}%`,
         top: `${(index * 47 + 11) % 100}%`,
@@ -172,7 +170,7 @@ function AnimatedBackground({ currentPage }) {
           width: var(--orb-size);
           height: var(--orb-size);
           border-radius: 999px;
-          filter: blur(80px);
+          filter: blur(54px);
           opacity: 1;
           will-change: transform;
           transition: background 1.5s ease;
@@ -226,7 +224,7 @@ function AnimatedBackground({ currentPage }) {
           top: var(--top);
           border-radius: 50%;
           background: rgba(226, 242, 255, var(--opacity));
-          box-shadow: 0 0 12px rgba(37, 99, 235, 0.25);
+          box-shadow: 0 0 8px rgba(37, 99, 235, 0.18);
           animation: particleFloat var(--duration) linear infinite;
           animation-delay: var(--delay);
           will-change: transform;
@@ -244,9 +242,8 @@ function AnimatedBackground({ currentPage }) {
             linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(6, 182, 212, 0.18) 26%, rgba(226, 242, 255, 0.86) 72%, rgba(255, 255, 255, 0.98));
           mask-image: linear-gradient(90deg, transparent 0%, black 22%, black 100%);
           box-shadow:
-            0 0 12px rgba(255, 255, 255, 0.9),
-            0 0 28px rgba(37, 99, 235, 0.58),
-            0 0 46px rgba(6, 182, 212, 0.38);
+            0 0 10px rgba(255, 255, 255, 0.75),
+            0 0 22px rgba(37, 99, 235, 0.42);
           opacity: 0;
           transform: rotate(var(--angle)) translate3d(var(--start-x), var(--start-y), 0);
           animation: meteorFall var(--duration) linear infinite;
@@ -260,7 +257,7 @@ function AnimatedBackground({ currentPage }) {
           inset: -7px 8px -7px 42%;
           border-radius: 999px;
           background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
-          filter: blur(3px);
+          filter: blur(2px);
           animation: meteorShimmer 1.4s ease-in-out infinite;
         }
 
@@ -275,9 +272,8 @@ function AnimatedBackground({ currentPage }) {
           background:
             radial-gradient(circle, #ffffff 0 30%, rgba(125, 211, 252, 0.9) 38%, rgba(37, 99, 235, 0.15) 68%, transparent 72%);
           box-shadow:
-            0 0 16px rgba(255, 255, 255, 1),
-            0 0 34px rgba(125, 211, 252, 0.72),
-            0 0 58px rgba(37, 99, 235, 0.45);
+            0 0 14px rgba(255, 255, 255, 0.9),
+            0 0 26px rgba(125, 211, 252, 0.55);
           transform: translateY(-50%);
         }
 
@@ -290,7 +286,7 @@ function AnimatedBackground({ currentPage }) {
           opacity: var(--opacity);
           background: rgba(255, 255, 255, 0.96);
           clip-path: polygon(50% 0%, 61% 36%, 100% 50%, 61% 64%, 50% 100%, 39% 64%, 0% 50%, 39% 36%);
-          filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 16px rgba(125, 211, 252, 0.62));
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.68), 0 0 18px rgba(125, 211, 252, 0.28);
           animation: starTwinkle var(--duration) ease-in-out infinite;
           animation-delay: var(--delay);
           will-change: opacity, transform;
@@ -340,8 +336,8 @@ function AnimatedBackground({ currentPage }) {
 
         .nav {
           background: rgba(13, 27, 42, 0.74);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
         }
 
         .productCard {
@@ -351,8 +347,8 @@ function AnimatedBackground({ currentPage }) {
         }
 
         .productCard:hover {
-          background: #F8FAFC;
-          box-shadow: 0 28px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px #2563EB40;
+          background: rgba(21, 37, 58, 0.96);
+          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.34), 0 0 0 1px #2563EB66;
         }
 
         .cartRipple {
