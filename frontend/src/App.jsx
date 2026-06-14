@@ -17,6 +17,7 @@ import {
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const categories = ["All", "Smartphones", "Laptops", "Audio", "Accessories"];
 const statuses = ["Pending", "Confirmed", "Shipped", "Delivered"];
+const knownBrands = ["Samsung", "Realme", "OnePlus", "Dell", "HP", "Lenovo", "boAt", "Sony", "JBL", "Ambrane"];
 const blankProduct = {
   name: "",
   category: "Smartphones",
@@ -29,6 +30,12 @@ const blankProduct = {
 
 function money(value) {
   return `₹${Number(value || 0).toLocaleString("en-IN")}`;
+}
+
+function getBrand(product) {
+  const name = product?.name || "";
+  const matched = knownBrands.find((brand) => name.toLowerCase().startsWith(brand.toLowerCase()));
+  return matched || name.split(" ")[0] || "Other";
 }
 
 function api(path, options = {}, user) {
@@ -513,6 +520,8 @@ function AnimatedBackground({ currentPage }) {
 function Navbar({ user, cartCount, page, goTo, logout }) {
   const nav = [
     ["home", "Home"],
+    ["products", "Products"],
+    ["about", "About"],
     ["orders", "Orders"],
     ...(user?.role === "admin" ? [["admin", "Admin"]] : []),
   ];
@@ -574,7 +583,7 @@ function Hero({ goTo }) {
         <span className="eyebrow">Premium Indian Electronics Retailer</span>
         <h1>Your Trusted Electronics Partner</h1>
         <p>Smartphones, laptops, audio gear, and daily tech essentials with honest prices, fresh stock, and dependable service.</p>
-        <button className="heroCta" onClick={() => goTo("home")}>
+        <button className="heroCta" onClick={() => goTo("products")}>
           Shop Now <ShoppingCart size={18} />
         </button>
       </div>
@@ -694,6 +703,166 @@ function Home({ products, onView, onAdd, goTo }) {
         </section>
       </main>
     </>
+  );
+}
+
+function ProductsPage({ products, onView, onAdd }) {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All");
+  const [brand, setBrand] = useState("All");
+  const [stock, setStock] = useState("all");
+  const [rating, setRating] = useState("all");
+  const [sort, setSort] = useState("featured");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const brands = useMemo(() => ["All", ...Array.from(new Set(products.map(getBrand))).sort()], [products]);
+  const highestPrice = useMemo(() => Math.max(0, ...products.map((product) => Number(product.price || 0))), [products]);
+
+  const filtered = useMemo(() => {
+    const min = minPrice === "" ? 0 : Number(minPrice);
+    const max = maxPrice === "" ? Number.POSITIVE_INFINITY : Number(maxPrice);
+
+    return products
+      .filter((product) => {
+        const matchesSearch = product.name.toLowerCase().includes(query.toLowerCase());
+        const matchesCategory = category === "All" || product.category === category;
+        const matchesBrand = brand === "All" || getBrand(product) === brand;
+        const matchesPrice = product.price >= min && product.price <= max;
+        const matchesStock = stock === "all" || (stock === "in" ? product.stock > 0 : product.stock <= 0);
+        const matchesRating = rating === "all" || Number(product.rating) >= Number(rating);
+        return matchesSearch && matchesCategory && matchesBrand && matchesPrice && matchesStock && matchesRating;
+      })
+      .sort((a, b) => {
+        if (sort === "priceLow") return a.price - b.price;
+        if (sort === "priceHigh") return b.price - a.price;
+        if (sort === "rating") return b.rating - a.rating;
+        if (sort === "reviews") return b.reviews - a.reviews;
+        if (sort === "name") return a.name.localeCompare(b.name);
+        return b.id - a.id;
+      });
+  }, [products, query, category, brand, minPrice, maxPrice, stock, rating, sort]);
+
+  const clearFilters = () => {
+    setQuery("");
+    setCategory("All");
+    setBrand("All");
+    setStock("all");
+    setRating("all");
+    setSort("featured");
+    setMinPrice("");
+    setMaxPrice("");
+  };
+
+  return (
+    <main className="page">
+      <section className="productsIntro">
+        <div>
+          <span className="accentText">Complete Catalog</span>
+          <h1>Products</h1>
+          <p>Compare smartphones, laptops, audio gear, and accessories with quick filters built for real shopping decisions.</p>
+        </div>
+        <div className="catalogStats">
+          <strong>{filtered.length}</strong>
+          <span>matching products</span>
+        </div>
+      </section>
+
+      <section className="filterPanel">
+        <label className="searchBox filterSearch">
+          <Search size={20} />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by product name..." />
+        </label>
+
+        <div className="filterGrid">
+          <label>
+            <span>Category</span>
+            <select value={category} onChange={(event) => setCategory(event.target.value)}>
+              {categories.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Brand</span>
+            <select value={brand} onChange={(event) => setBrand(event.target.value)}>
+              {brands.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Sort</span>
+            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+              <option value="featured">Newest first</option>
+              <option value="priceLow">Price: low to high</option>
+              <option value="priceHigh">Price: high to low</option>
+              <option value="rating">Highest rated</option>
+              <option value="reviews">Most reviewed</option>
+              <option value="name">Name A-Z</option>
+            </select>
+          </label>
+          <label>
+            <span>Availability</span>
+            <select value={stock} onChange={(event) => setStock(event.target.value)}>
+              <option value="all">All stock</option>
+              <option value="in">In stock only</option>
+              <option value="out">Out of stock</option>
+            </select>
+          </label>
+          <label>
+            <span>Min Price</span>
+            <input value={minPrice} type="number" min="0" max={highestPrice} onChange={(event) => setMinPrice(event.target.value)} placeholder="₹0" />
+          </label>
+          <label>
+            <span>Max Price</span>
+            <input value={maxPrice} type="number" min="0" max={highestPrice} onChange={(event) => setMaxPrice(event.target.value)} placeholder={highestPrice ? money(highestPrice) : "No limit"} />
+          </label>
+          <label>
+            <span>Rating</span>
+            <select value={rating} onChange={(event) => setRating(event.target.value)}>
+              <option value="all">All ratings</option>
+              <option value="4.5">4.5+ stars</option>
+              <option value="4">4.0+ stars</option>
+              <option value="3.5">3.5+ stars</option>
+            </select>
+          </label>
+          <button className="ghost filterReset" onClick={clearFilters}>
+            Clear Filters
+          </button>
+        </div>
+      </section>
+
+      <ProductGrid products={filtered} onView={onView} onAdd={onAdd} />
+    </main>
+  );
+}
+
+function AboutPage() {
+  return (
+    <main className="page aboutPage">
+      <section className="aboutHero">
+        <span className="accentText">About Vardhman Electronics</span>
+        <h1>Premium electronics, honest service, and dependable stock.</h1>
+        <p>
+          Vardhman Electronics is built as a modern Indian electronics store experience: fast browsing, transparent pricing,
+          clear stock visibility, and a trusted purchase flow for everyday tech buyers.
+        </p>
+      </section>
+      <section className="aboutGrid">
+        {[
+          ["Trusted Catalog", "Curated phones, laptops, audio products, and accessories from high-demand brands."],
+          ["Live Stock Focus", "The glowing LIVE badge helps customers quickly spot available products before checkout."],
+          ["Admin Control", "Product, stock, order, user, and revenue controls are built directly into the dashboard."],
+          ["Cloud Ready", "Frontend runs on Vercel, backend on Render, and data on Neon PostgreSQL."],
+        ].map(([title, text]) => (
+          <article className="aboutCard" key={title}>
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </article>
+        ))}
+      </section>
+    </main>
   );
 }
 
@@ -1180,6 +1349,8 @@ export default function App() {
       <Toasts toasts={toasts} />
       {user && <Navbar user={user} cartCount={cartCount} page={page} goTo={goTo} logout={logout} />}
       {user && page === "home" && <Home products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} goTo={goTo} />}
+      {user && page === "products" && <ProductsPage products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} />}
+      {user && page === "about" && <AboutPage />}
       {user && page === "detail" && <ProductDetail product={selectedProduct} onBack={() => goTo("home")} onAdd={addToCart} />}
       {user && page === "cart" && <Cart user={user} cart={cart} products={products} setCart={setCart} placeOrder={placeOrder} goTo={goTo} />}
       {user && page === "orders" && <Orders user={user} orders={orders} goTo={goTo} />}
