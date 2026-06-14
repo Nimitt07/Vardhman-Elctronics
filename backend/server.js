@@ -19,7 +19,7 @@ if (existsSync(envPath)) {
 
 const PORT = Number(process.env.PORT || 8000);
 const DATABASE_URL = process.env.DATABASE_URL;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "*";
+const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || "*").replace(/\/+$/, "");
 
 if (!DATABASE_URL) {
   console.error("Missing DATABASE_URL. Add your Neon PostgreSQL connection string.");
