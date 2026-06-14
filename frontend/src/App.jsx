@@ -1137,10 +1137,6 @@ export default function App() {
       setPage("login");
       return;
     }
-    if (user.role === "admin") {
-      notify("info", "Admin can manage products from the dashboard.");
-      return;
-    }
     setCart((current) => {
       const existing = current.find((item) => item.productId === product.id);
       if (existing) {
