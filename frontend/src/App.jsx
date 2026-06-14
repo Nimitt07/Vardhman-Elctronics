@@ -1324,11 +1324,6 @@ function Login({ onLogin, onRegister }) {
             {tab === "login" ? "Login" : "Register"}
           </button>
         </div>
-        <div className="credentials">
-          Admin: admin / vardhman@admin
-          <br />
-          Users: rahul / rahul123, priya / priya123
-        </div>
       </section>
     </main>
   );

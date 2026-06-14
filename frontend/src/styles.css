@@ -950,17 +950,6 @@ img.orderMedia {
   color: #fff;
 }
 
-.credentials {
-  margin-top: 18px;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #64748b;
-  padding: 14px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.7;
-}
-
 .orderCard {
   border: 1px solid var(--space-border);
   border-radius: 8px;
