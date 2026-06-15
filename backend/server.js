@@ -232,6 +232,8 @@ function cleanAddress(body) {
     state: String(address.state || "").trim(),
     pincode: String(address.pincode || "").trim(),
     country: String(address.country || "").trim(),
+    altPhone: String(address.altPhone || "").trim(),
+    notes: String(address.notes || "").trim(),
   };
 }
 

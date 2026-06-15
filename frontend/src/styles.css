@@ -159,11 +159,19 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  border: 0;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   padding: 11px 12px;
   font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.userChip:hover {
+  background: rgba(37, 99, 235, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.38);
 }
 
 .mobileNav {
@@ -673,6 +681,24 @@ del {
   50% { transform: scale(1.45); opacity: 0.55; }
 }
 
+@keyframes beamTravel {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(var(--beam-angle)) scaleX(0);
+  }
+  18% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(var(--beam-angle)) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(var(--beam-angle)) scaleX(1);
+  }
+}
+
 .empty {
   border-radius: 8px;
   border: 1px solid var(--space-border);
@@ -931,6 +957,44 @@ img.orderMedia {
   width: 100%;
 }
 
+.passwordField {
+  position: relative;
+  display: block;
+}
+
+.passwordField input {
+  width: 100%;
+  padding-right: 50px;
+}
+
+.passwordField button {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(13, 27, 42, 0.08);
+  color: #0d1b2a;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.contactLine {
+  margin: 0;
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 8px;
+  background: rgba(96, 165, 250, 0.1);
+  color: #bfdbfe;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .narrow {
   width: min(100%, 440px);
 }
@@ -1023,6 +1087,50 @@ img.orderMedia {
   text-align: right;
   font-size: 18px;
   font-weight: 800;
+}
+
+.profilePage .panel {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.profilePage textarea {
+  resize: vertical;
+}
+
+.profileSave {
+  margin-top: 18px;
+}
+
+.lightningBeam {
+  position: fixed;
+  left: var(--beam-x);
+  top: var(--beam-y);
+  z-index: 60;
+  width: var(--beam-length);
+  height: 4px;
+  pointer-events: none;
+  transform: translateY(-50%) rotate(var(--beam-angle));
+  transform-origin: left center;
+  color: #f59e0b;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 18px rgba(37, 99, 235, 0.55));
+  animation: beamTravel 720ms cubic-bezier(0.2, 0.85, 0.25, 1) forwards;
+}
+
+.lightningBeam::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.2), #f59e0b 45%, #ffffff 58%, rgba(37, 99, 235, 0.15), transparent);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.7), 0 0 30px rgba(37, 99, 235, 0.45);
+}
+
+.lightningBeam svg {
+  position: absolute;
+  right: -7px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .adminHead {
@@ -1190,6 +1298,15 @@ td {
   min-width: 180px;
 }
 
+.adminAddressCell strong,
+.adminAddressCell span {
+  display: block;
+}
+
+.adminAddressCell strong {
+  color: var(--space-text);
+}
+
 .selectWrap {
   position: relative;
   display: block;
@@ -1329,7 +1446,12 @@ footer {
   }
 
   .userChip {
-    display: none;
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    padding: 0;
+    font-size: 0;
   }
 
   .hero,
@@ -1350,6 +1472,13 @@ footer {
   .productsIntro {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightningBeam {
+    display: none;
+    animation: none;
   }
 }
 

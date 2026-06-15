@@ -3,6 +3,8 @@ import {
   Check,
   ChevronDown,
   Edit2,
+  Eye,
+  EyeOff,
   LogOut,
   Package,
   Plus,
@@ -12,6 +14,7 @@ import {
   Star,
   Trash2,
   User,
+  Zap,
 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -188,6 +191,9 @@ const hindiPlaceholders = {
   "Country": "देश",
 };
 
+const englishByHindiText = Object.fromEntries(Object.entries(hindiDictionary).map(([english, hindi]) => [hindi, english]));
+const englishByHindiPlaceholder = Object.fromEntries(Object.entries(hindiPlaceholders).map(([english, hindi]) => [hindi, english]));
+
 function money(value) {
   return `₹${Number(value || 0).toLocaleString("en-IN")}`;
 }
@@ -229,18 +235,18 @@ function translateVisibleText(language) {
   while (walker.nextNode()) textNodes.push(walker.currentNode);
 
   textNodes.forEach((node) => {
-    const parent = node.parentElement;
-    if (!parent.dataset.enText) parent.dataset.enText = node.nodeValue;
-    const original = parent.dataset.enText;
-    const compact = original.replace(/\s+/g, " ").trim();
-    const translated = hindiDictionary[compact];
-    node.nodeValue = useHindi && translated ? original.replace(compact, translated) : original;
+    const compact = node.nodeValue.replace(/\s+/g, " ").trim();
+    if (!compact) return;
+    const leading = node.nodeValue.match(/^\s*/)?.[0] || "";
+    const trailing = node.nodeValue.match(/\s*$/)?.[0] || "";
+    const nextText = useHindi ? hindiDictionary[compact] : englishByHindiText[compact];
+    if (nextText) node.nodeValue = `${leading}${nextText}${trailing}`;
   });
 
   document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach((element) => {
-    if (!element.dataset.enPlaceholder) element.dataset.enPlaceholder = element.getAttribute("placeholder") || "";
-    const original = element.dataset.enPlaceholder;
-    element.setAttribute("placeholder", useHindi ? hindiPlaceholders[original] || original : original);
+    const placeholder = element.getAttribute("placeholder") || "";
+    const nextPlaceholder = useHindi ? hindiPlaceholders[placeholder] : englishByHindiPlaceholder[placeholder];
+    if (nextPlaceholder) element.setAttribute("placeholder", nextPlaceholder);
   });
 }
 
@@ -254,6 +260,23 @@ function LanguageToggle({ language, setLanguage }) {
     >
       {language === "en" ? "\u0939\u093f\u0902\u0926\u0940" : "English"}
     </button>
+  );
+}
+
+function LightningBeam({ beam }) {
+  if (!beam) return null;
+  return (
+    <span
+      className="lightningBeam"
+      style={{
+        "--beam-x": `${beam.x}px`,
+        "--beam-y": `${beam.y}px`,
+        "--beam-length": `${beam.length}px`,
+        "--beam-angle": `${beam.angle}deg`,
+      }}
+    >
+      <Zap size={15} />
+    </span>
   );
 }
 
@@ -770,10 +793,10 @@ function Navbar({ user, cartCount, page, goTo, logout, language, setLanguage }) 
         </button>
         {user ? (
           <>
-            <span className="userChip">
+            <button className="userChip" onClick={() => goTo("profile")} aria-label="Open profile">
               <User size={16} />
               {user.username}
-            </span>
+            </button>
             <button className="iconButton" onClick={logout} aria-label="Logout">
               <LogOut size={18} />
             </button>
@@ -839,7 +862,7 @@ function ProductCard({ product, onView, onAdd }) {
     window.setTimeout(() => {
       setRipple((current) => (current?.id === id ? null : current));
     }, 700);
-    onAdd(product, 1);
+    onAdd(product, 1, event.currentTarget);
   };
 
   return (
@@ -1075,6 +1098,7 @@ function AboutPage() {
           ["Live Stock Focus", "The glowing LIVE badge helps customers quickly spot available products before checkout."],
           ["Admin Control", "Product, stock, order, user, and revenue controls are built directly into the dashboard."],
           ["Cloud Ready", "Frontend runs on Vercel, backend on Render, and data on Neon PostgreSQL."],
+          ["Customer Support", "For more info contact: 9621474745."],
         ].map(([title, text]) => (
           <article className="aboutCard" key={title}>
             <h2>{title}</h2>
@@ -1118,7 +1142,7 @@ function ProductDetail({ product, onBack, onAdd }) {
                 <span>{qty}</span>
                 <button onClick={() => setQty(Math.min(Math.max(1, product.stock), qty + 1))}>+</button>
               </div>
-              <button className="primary" disabled={product.stock <= 0} onClick={() => onAdd(product, qty)}>
+              <button className="primary" disabled={product.stock <= 0} onClick={(event) => onAdd(product, qty, event.currentTarget)}>
                 <ShoppingCart size={18} /> Add to Cart
               </button>
             </div>
@@ -1144,8 +1168,11 @@ function LoginPrompt({ title, goTo }) {
   );
 }
 
-function Cart({ user, cart, products, setCart, placeOrder, goTo, notify }) {
-  const [deliveryAddress, setDeliveryAddress] = useState(blankAddress);
+function Cart({ user, cart, products, setCart, placeOrder, goTo, notify, profile, setProfile }) {
+  const [deliveryAddress, setDeliveryAddress] = useState(profile?.address || blankAddress);
+  useEffect(() => {
+    setDeliveryAddress(profile?.address || blankAddress);
+  }, [user?.id]);
   if (!user) return <LoginPrompt title="Login to view your cart" goTo={goTo} />;
   const rows = cart.map((item) => ({ ...item, product: products.find((p) => p.id === item.productId) })).filter((item) => item.product);
   const subtotal = rows.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -1169,7 +1196,13 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo, notify }) {
       notify("error", error);
       return;
     }
-    placeOrder(deliveryAddress);
+    const orderAddress = {
+      ...deliveryAddress,
+      altPhone: profile?.altPhone || "",
+      notes: profile?.notes || "",
+    };
+    setProfile((current) => ({ ...current, address: deliveryAddress }));
+    placeOrder(orderAddress);
   };
 
   return (
@@ -1238,7 +1271,7 @@ function Cart({ user, cart, products, setCart, placeOrder, goTo, notify }) {
           <span>Total</span>
           <strong>{money(total)}</strong>
         </div>
-        <button className="primary full" onClick={submitOrder}>
+        <button className="primary full" onClick={submitOrder} disabled={rows.length === 0}>
           Place Order
         </button>
       </aside>
@@ -1258,6 +1291,8 @@ function AddressSummary({ address }) {
       <p>{address.fullName} · {address.phone}</p>
       <p>{address.house}, {address.area}, {address.city}</p>
       <p>{address.state} - {address.pincode}, {address.country}</p>
+      {address.altPhone && <p>Alternate contact: {address.altPhone}</p>}
+      {address.notes && <p>Notes: {address.notes}</p>}
     </div>
   );
 }
@@ -1301,10 +1336,14 @@ function Login({ onLogin, onRegister, language, setLanguage }) {
   const [tab, setTab] = useState("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const submit = () => {
     const payload = { username, password };
     if (tab === "login") onLogin(payload);
     else onRegister(payload);
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") submit();
   };
 
   return (
@@ -1322,15 +1361,81 @@ function Login({ onLogin, onRegister, language, setLanguage }) {
             ))}
           </div>
           <h1>{tab === "login" ? "Welcome back" : "Create account"}</h1>
-          <div className="stack">
+          <div className="stack" onKeyDown={handleKeyDown}>
             <input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Username" />
-            <input value={password} type="password" onChange={(event) => setPassword(event.target.value)} placeholder="Password" />
+            <label className="passwordField">
+              <input value={password} type={showPassword ? "text" : "password"} onChange={(event) => setPassword(event.target.value)} placeholder="Password" />
+              <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </label>
             <button className="primary full" onClick={submit}>
               {tab === "login" ? "Login" : "Register"}
             </button>
+            <p className="contactLine">For more info contact: 9621474745</p>
           </div>
         </section>
       </div>
+    </main>
+  );
+}
+
+function ProfilePage({ user, profile, setProfile, notify }) {
+  const address = profile.address || blankAddress;
+  const updateAddress = (key, value) => {
+    setProfile((current) => ({
+      ...current,
+      address: { ...(current.address || blankAddress), [key]: value },
+    }));
+  };
+  const updateProfile = (key, value) => {
+    setProfile((current) => ({ ...current, [key]: value }));
+  };
+  const saveProfile = () => {
+    const error = validateAddress(address);
+    if (error) {
+      notify("error", error);
+      return;
+    }
+    notify("success", "Profile details saved for checkout.");
+  };
+
+  return (
+    <main className="page profilePage">
+      <section className="panel">
+        <div className="panelHead">
+          <div>
+            <span className="accentText">Account</span>
+            <h1>{user.username}</h1>
+            <p>Save your delivery details here so checkout is faster and cleaner.</p>
+          </div>
+          <span>{user.role}</span>
+        </div>
+        <div className="addressGrid">
+          {addressFields.map(([key, label]) => (
+            <label key={key} className={key === "house" || key === "area" ? "wide" : ""}>
+              <span>{label}</span>
+              <input
+                value={address[key] || ""}
+                onChange={(event) => updateAddress(key, event.target.value)}
+                placeholder={label}
+                type={key === "phone" || key === "pincode" ? "tel" : "text"}
+              />
+            </label>
+          ))}
+          <label>
+            <span>Alternate Contact</span>
+            <input value={profile.altPhone || ""} onChange={(event) => updateProfile("altPhone", event.target.value)} placeholder="Alternate Contact" />
+          </label>
+          <label className="wide">
+            <span>Order Notes</span>
+            <textarea value={profile.notes || ""} onChange={(event) => updateProfile("notes", event.target.value)} placeholder="Order Notes" rows={3} />
+          </label>
+        </div>
+        <button className="primary profileSave" onClick={saveProfile}>
+          <Check size={18} /> Save Details
+        </button>
+      </section>
     </main>
   );
 }
@@ -1453,7 +1558,7 @@ function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
             <tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Address</th><th>Total</th><th>Status</th></tr>
           </thead>
           <tbody>
-            {orders.length === 0 && <tr><td colSpan="6">No orders placed yet.</td></tr>}
+            {orders.length === 0 && <tr><td colSpan="7">No orders placed yet.</td></tr>}
             {orders.map((order) => (
               <tr key={order.orderId}>
                 <td>{order.orderId}</td>
@@ -1461,7 +1566,13 @@ function Admin({ user, products, orders, users, stats, reloadAll, notify }) {
                 <td>{order.date}</td>
                 <td>{order.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
                 <td className="adminAddressCell">
-                  {order.deliveryAddress ? `${order.deliveryAddress.city}, ${order.deliveryAddress.state} - ${order.deliveryAddress.pincode}` : "Not provided"}
+                  {order.deliveryAddress ? (
+                    <>
+                      <strong>{order.deliveryAddress.fullName}</strong>
+                      <span>{order.deliveryAddress.house}, {order.deliveryAddress.area}</span>
+                      <span>{order.deliveryAddress.city}, {order.deliveryAddress.state} - {order.deliveryAddress.pincode}</span>
+                    </>
+                  ) : "Not provided"}
                 </td>
                 <td>{money(order.total)}</td>
                 <td>
@@ -1535,6 +1646,8 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [language, setLanguage] = useState("en");
+  const [profile, setProfile] = useState({ address: blankAddress, altPhone: "", notes: "" });
+  const [beam, setBeam] = useState(null);
 
   const notify = (type, message) => {
     const id = Date.now() + Math.random();
@@ -1543,12 +1656,12 @@ export default function App() {
   };
 
   const loadProducts = () => api("/api/products").then(setProducts).catch((error) => notify("error", error.message));
-  const loadOrders = () => user ? api("/api/orders", {}, user).then(setOrders).catch((error) => notify("error", error.message)) : Promise.resolve(setOrders([]));
-  const loadAdmin = () => {
-    if (user?.role !== "admin") return Promise.resolve();
+  const loadOrders = (activeUser = user) => activeUser ? api("/api/orders", {}, activeUser).then(setOrders).catch((error) => notify("error", error.message)) : Promise.resolve(setOrders([]));
+  const loadAdmin = (activeUser = user) => {
+    if (activeUser?.role !== "admin") return Promise.resolve();
     return Promise.all([
-      api("/api/users", {}, user).then(setUsers),
-      api("/api/stats", {}, user).then(setStats),
+      api("/api/users", {}, activeUser).then(setUsers),
+      api("/api/stats", {}, activeUser).then(setStats),
     ]).catch((error) => notify("error", error.message));
   };
   const reloadAll = () => {
@@ -1592,8 +1705,11 @@ export default function App() {
       const data = await api("/api/login", { method: "POST", body: JSON.stringify(payload) });
       setUser(data.user);
       setCart([]);
+      setProfile({ address: blankAddress, altPhone: "", notes: "" });
       notify("success", `Welcome, ${data.user.username}.`);
       setPage(data.user.role === "admin" ? "admin" : "home");
+      loadOrders(data.user);
+      loadAdmin(data.user);
     } catch (error) {
       notify("error", error.message);
     }
@@ -1604,19 +1720,46 @@ export default function App() {
       const data = await api("/api/register", { method: "POST", body: JSON.stringify(payload) });
       setUser(data.user);
       setCart([]);
+      setProfile({ address: blankAddress, altPhone: "", notes: "" });
       notify("success", "Account created. You are ready to shop.");
       setPage("home");
+      loadOrders(data.user);
     } catch (error) {
       notify("error", error.message);
     }
   };
 
-  const addToCart = (product, quantity) => {
+  const showCartBeam = (sourceElement) => {
+    const target = document.querySelector(".cartButton");
+    if (!sourceElement || !target || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const from = sourceElement.getBoundingClientRect();
+    const to = target.getBoundingClientRect();
+    const startX = from.left + from.width / 2;
+    const startY = from.top + from.height / 2;
+    const endX = to.left + to.width / 2;
+    const endY = to.top + to.height / 2;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const id = Date.now();
+    setBeam({
+      id,
+      x: startX,
+      y: startY,
+      length: Math.hypot(dx, dy),
+      angle: Math.atan2(dy, dx) * (180 / Math.PI),
+    });
+    window.setTimeout(() => {
+      setBeam((current) => (current?.id === id ? null : current));
+    }, 720);
+  };
+
+  const addToCart = (product, quantity, sourceElement) => {
     if (!user) {
       notify("info", "Please login to add items to cart.");
       setPage("login");
       return;
     }
+    showCartBeam(sourceElement);
     setCart((current) => {
       const existing = current.find((item) => item.productId === product.id);
       if (existing) {
@@ -1652,26 +1795,37 @@ export default function App() {
     setUser(null);
     setCart([]);
     setOrders([]);
+    setUsers([]);
+    setStats({ products: 0, orders: 0, users: 0, revenue: 0 });
+    setProfile({ address: blankAddress, altPhone: "", notes: "" });
     setPage("login");
     notify("info", "Logged out.");
   };
 
   const selectedProduct = selected ? products.find((product) => product.id === selected.id) : null;
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const adminStats = {
+    products: stats.products || products.length,
+    orders: stats.orders || orders.length,
+    users: stats.users || users.length || (user ? 1 : 0),
+    revenue: stats.revenue,
+  };
 
   return (
     <div className="app">
       <AnimatedBackground currentPage={page} />
+      <LightningBeam beam={beam} />
       <Toasts toasts={toasts} />
       {user && <Navbar user={user} cartCount={cartCount} page={page} goTo={goTo} logout={logout} language={language} setLanguage={setLanguage} />}
       {user && page === "home" && <Home products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} goTo={goTo} />}
       {user && page === "products" && <ProductsPage products={products} onView={(product) => { setSelected(product); setPage("detail"); }} onAdd={addToCart} />}
       {user && page === "about" && <AboutPage />}
       {user && page === "detail" && <ProductDetail product={selectedProduct} onBack={() => goTo("home")} onAdd={addToCart} />}
-      {user && page === "cart" && <Cart user={user} cart={cart} products={products} setCart={setCart} placeOrder={placeOrder} goTo={goTo} notify={notify} />}
+      {user && page === "cart" && <Cart user={user} cart={cart} products={products} setCart={setCart} placeOrder={placeOrder} goTo={goTo} notify={notify} profile={profile} setProfile={setProfile} />}
       {user && page === "orders" && <Orders user={user} orders={orders} goTo={goTo} />}
+      {user && page === "profile" && <ProfilePage user={user} profile={profile} setProfile={setProfile} notify={notify} />}
       {page === "login" && <Login onLogin={onLogin} onRegister={onRegister} language={language} setLanguage={setLanguage} />}
-      {page === "admin" && user?.role === "admin" && <Admin user={user} products={products} orders={orders} users={users} stats={stats} reloadAll={reloadAll} notify={notify} />}
+      {page === "admin" && user?.role === "admin" && <Admin user={user} products={products} orders={orders} users={users} stats={adminStats} reloadAll={reloadAll} notify={notify} />}
       <footer>Vardhman Electronics · Premium electronics, honest service, real SQLite database.</footer>
     </div>
   );
