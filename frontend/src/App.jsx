@@ -271,7 +271,8 @@ function LightningBeam({ beam }) {
       style={{
         "--beam-x": `${beam.x}px`,
         "--beam-y": `${beam.y}px`,
-        "--beam-length": `${beam.length}px`,
+        "--beam-dx": `${beam.dx}px`,
+        "--beam-dy": `${beam.dy}px`,
         "--beam-angle": `${beam.angle}deg`,
       }}
     >
@@ -1745,7 +1746,8 @@ export default function App() {
       id,
       x: startX,
       y: startY,
-      length: Math.hypot(dx, dy),
+      dx,
+      dy,
       angle: Math.atan2(dy, dx) * (180 / Math.PI),
     });
     window.setTimeout(() => {
